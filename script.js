@@ -2,6 +2,7 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const startButton = document.getElementById('startButton');
 const restartButton = document.getElementById('restartButton');
+const muteButton = document.getElementById('muteButton');
 const scoreElement = document.getElementById('scoreValue');
 const highScoreElement = document.getElementById('highScoreValue');
 const levelElement = document.getElementById('levelValue');
@@ -11,6 +12,8 @@ const finalHighScoreElement = document.getElementById('finalHighScore');
 const finalLevelElement = document.getElementById('finalLevel');
 const gameOverScreen = document.getElementById('gameOverScreen');
 const difficultySelect = document.getElementById('difficultySelect');
+const achievementPopup = document.getElementById('achievementPopup');
+const achievementText = document.getElementById('achievementText');
 
 const gridSize = 20;
 let tileCount;
@@ -34,6 +37,7 @@ let gameSpeeds = {
     hard: 50
 };
 let currentPowerUp = 'None';
+let isMuted = false;
 
 const powerUps = {
     speedBoost: { color: 'yellow', duration: 5000, effect: () => {} },
@@ -44,6 +48,19 @@ const powerUps = {
 const specialFoods = {
     golden: { color: 'gold', points: 5 },
     shrink: { color: 'blue', effect: () => { snake = snake.slice(0, Math.max(3, snake.length - 2)); } }
+};
+
+const achievements = {
+    levelUp: { name: "Level Up!", description: "Reach level {level}" },
+    speedDemon: { name: "Speed Demon", description: "Collect 3 speed boosts in one game" },
+    obstaclemaster: { name: "Obstacle Master", description: "Clear all obstacles 3 times" },
+    goldRush: { name: "Gold Rush", description: "Collect 5 golden apples in one game" }
+};
+
+const sounds = {
+    eat: new Audio('https://example.com/eat.mp3'),
+    powerUp: new Audio('https://example.com/powerup.mp3'),
+    gameOver: new Audio('https://example.com/gameover.mp3')
 };
 
 function initializeCanvas() {
@@ -150,6 +167,7 @@ function checkFoodCollision() {
         if (Math.random() < 0.2) { // 20% chance to spawn a power-up
             spawnPowerUp();
         }
+        playSound(sounds.eat);
     }
 }
 
@@ -164,6 +182,7 @@ function checkSpecialFoodCollision() {
             }
             scoreElement.textContent = score;
             specialFood = null;
+            playSound(sounds.powerUp);
         }
     }
 }
@@ -174,6 +193,7 @@ function checkPowerUpCollision() {
         if (head.x === powerUp.x && head.y === powerUp.y) {
             activatePowerUp(powerUp.type);
             powerUp = null;
+            playSound(sounds.powerUp);
         }
     }
 }
@@ -186,6 +206,7 @@ function checkLevelUp() {
         clearInterval(gameLoop);
         const newSpeed = Math.max(50, gameSpeeds[difficultySelect.value] - level * 5);
         gameLoop = setInterval(gameStep, newSpeed);
+        unlockAchievement('levelUp', { level: level });
     }
 }
 
@@ -217,6 +238,7 @@ function endGame() {
     finalLevelElement.textContent = level;
     highScoreElement.textContent = highScore;
     gameOverScreen.style.display = 'flex';
+    playSound(sounds.gameOver);
 }
 
 function drawGame() {
@@ -251,6 +273,27 @@ function drawGame() {
     }
 }
 
+function unlockAchievement(achievementKey, data = {}) {
+    const achievement = achievements[achievementKey];
+    let description = achievement.description;
+    
+    for (const [key, value] of Object.entries(data)) {
+        description = description.replace(`{${key}}`, value);
+    }
+    
+    achievementText.textContent = `${achievement.name}: ${description}`;
+    achievementPopup.style.display = 'block';
+    setTimeout(() => {
+        achievementPopup.style.display = 'none';
+    }, 3000);
+}
+
+function playSound(sound) {
+    if (!isMuted) {
+        sound.play();
+    }
+}
+
 document.addEventListener('keydown', (e) => {
     if (gameState !== 'playing') return;
     
@@ -264,6 +307,11 @@ document.addEventListener('keydown', (e) => {
 
 startButton.addEventListener('click', startGame);
 restartButton.addEventListener('click', startGame);
+
+muteButton.addEventListener('click', () => {
+    isMuted = !isMuted;
+    muteButton.textContent = isMuted ? 'Unmute Sound' : 'Mute Sound';
+});
 
 window.addEventListener('resize', () => {
     if (gameState === 'playing') {
