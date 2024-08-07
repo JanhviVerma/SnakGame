@@ -38,15 +38,29 @@ let gameSpeeds = {
 };
 let currentPowerUp = 'None';
 let isMuted = false;
+let speedBoostCount = 0;
+let obstacleRemovalCount = 0;
+let goldenAppleCount = 0;
 
 const powerUps = {
-    speedBoost: { color: 'yellow', duration: 5000, effect: () => {} },
+    speedBoost: { color: 'yellow', duration: 5000, effect: () => { speedBoostCount++; } },
     pointMultiplier: { color: 'purple', duration: 10000, effect: () => {} },
-    obstacleRemover: { color: 'orange', duration: 0, effect: () => { obstacles = []; } }
+    obstacleRemover: { color: 'orange', duration: 0, effect: () => { 
+        obstacles = []; 
+        obstacleRemovalCount++;
+        if (obstacleRemovalCount === 3) {
+            unlockAchievement('obstaclemaster');
+        }
+    }}
 };
 
 const specialFoods = {
-    golden: { color: 'gold', points: 5 },
+    golden: { color: 'gold', points: 5, effect: () => { 
+        goldenAppleCount++;
+        if (goldenAppleCount === 5) {
+            unlockAchievement('goldRush');
+        }
+    }},
     shrink: { color: 'blue', effect: () => { snake = snake.slice(0, Math.max(3, snake.length - 2)); } }
 };
 
@@ -79,6 +93,9 @@ function startGame() {
     dy = 0;
     score = 0;
     level = 1;
+    speedBoostCount = 0;
+    obstacleRemovalCount = 0;
+    goldenAppleCount = 0;
     scoreElement.textContent = score;
     levelElement.textContent = level;
     powerUpElement.textContent = 'None';
@@ -92,7 +109,7 @@ function startGame() {
 
 function generateFood() {
     food = getEmptyCell();
-    if (Math.random() < 0.1) { // 10% chance for special food
+    if (Math.random() < 0.1) {
         specialFood = {
             ...getEmptyCell(),
             type: Math.random() < 0.5 ? 'golden' : 'shrink'
@@ -164,7 +181,7 @@ function checkFoodCollision() {
         score++;
         scoreElement.textContent = score;
         generateFood();
-        if (Math.random() < 0.2) { // 20% chance to spawn a power-up
+        if (Math.random() < 0.2) {
             spawnPowerUp();
         }
         playSound(sounds.eat);
@@ -177,6 +194,7 @@ function checkSpecialFoodCollision() {
         if (head.x === specialFood.x && head.y === specialFood.y) {
             if (specialFood.type === 'golden') {
                 score += specialFoods.golden.points;
+                specialFoods.golden.effect();
             } else if (specialFood.type === 'shrink') {
                 specialFoods.shrink.effect();
             }
@@ -224,6 +242,10 @@ function activatePowerUp(type) {
         currentPowerUp = 'None';
         powerUpElement.textContent = 'None';
     }, powerUps[type].duration);
+
+    if (type === 'speedBoost' && speedBoostCount === 3) {
+        unlockAchievement('speedDemon');
+    }
 }
 
 function endGame() {

@@ -133,8 +133,13 @@ button:hover {
         font-size: 2em;
     }
 
+    .game-info {
+        flex-wrap: wrap;
+    }
+
     .score, .high-score, .level, .power-up {
         font-size: 1em;
+        flex-basis: 50%;
     }
 
     .controls {
