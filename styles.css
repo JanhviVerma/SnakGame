@@ -10,23 +10,40 @@ body {
 
 .game-container {
     text-align: center;
+    max-width: 100%;
+    padding: 20px;
 }
 
 h1 {
     color: #333;
+    margin-bottom: 20px;
+}
+
+.game-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.score, .high-score {
+    font-size: 1.2em;
 }
 
 canvas {
     border: 2px solid #333;
     background-color: #fff;
+    max-width: 100%;
+    height: auto;
 }
 
-.score {
-    font-size: 1.2em;
-    margin: 10px 0;
+.controls {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
 }
 
-button {
+select, button {
     font-size: 1em;
     padding: 10px 20px;
     background-color: #4CAF50;
@@ -36,8 +53,16 @@ button {
     transition: background-color 0.3s;
 }
 
-button:hover {
+select {
+    background-color: #3498db;
+}
+
+select:hover, button:hover {
     background-color: #45a049;
+}
+
+select:hover {
+    background-color: #2980b9;
 }
 
 .game-over-screen {
@@ -61,5 +86,29 @@ button:hover {
 
 .game-over-screen p {
     font-size: 1.5em;
-    margin-bottom: 30px;
+    margin-bottom: 15px;
+}
+
+@media (max-width: 600px) {
+    .game-container {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    .score, .high-score {
+        font-size: 1em;
+    }
+
+    .controls {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    select, button {
+        width: 100%;
+        max-width: 200px;
+    }
 }
