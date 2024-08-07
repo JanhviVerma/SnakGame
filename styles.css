@@ -1,5 +1,5 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Arial', sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -12,21 +12,29 @@ body {
     text-align: center;
     max-width: 100%;
     padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
     color: #333;
     margin-bottom: 20px;
+    font-size: 2.5em;
 }
 
 .game-info {
     display: flex;
     justify-content: space-between;
     margin-bottom: 10px;
+    background-color: #f8f8f8;
+    padding: 10px;
+    border-radius: 5px;
 }
 
-.score, .high-score {
+.score, .high-score, .power-up {
     font-size: 1.2em;
+    font-weight: bold;
 }
 
 canvas {
@@ -34,6 +42,7 @@ canvas {
     background-color: #fff;
     max-width: 100%;
     height: auto;
+    border-radius: 5px;
 }
 
 .controls {
@@ -46,23 +55,27 @@ canvas {
 select, button {
     font-size: 1em;
     padding: 10px 20px;
-    background-color: #4CAF50;
     color: white;
     border: none;
     cursor: pointer;
     transition: background-color 0.3s;
+    border-radius: 5px;
 }
 
 select {
     background-color: #3498db;
 }
 
-select:hover, button:hover {
-    background-color: #45a049;
+button {
+    background-color: #4CAF50;
 }
 
 select:hover {
     background-color: #2980b9;
+}
+
+button:hover {
+    background-color: #45a049;
 }
 
 .game-over-screen {
@@ -80,7 +93,7 @@ select:hover {
 }
 
 .game-over-screen h2 {
-    font-size: 2em;
+    font-size: 2.5em;
     margin-bottom: 20px;
 }
 
@@ -95,10 +108,10 @@ select:hover {
     }
 
     h1 {
-        font-size: 1.5em;
+        font-size: 2em;
     }
 
-    .score, .high-score {
+    .score, .high-score, .power-up {
         font-size: 1em;
     }
 
