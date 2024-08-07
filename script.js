@@ -4,9 +4,11 @@ const startButton = document.getElementById('startButton');
 const restartButton = document.getElementById('restartButton');
 const scoreElement = document.getElementById('scoreValue');
 const highScoreElement = document.getElementById('highScoreValue');
+const levelElement = document.getElementById('levelValue');
 const powerUpElement = document.getElementById('powerUpValue');
 const finalScoreElement = document.getElementById('finalScore');
 const finalHighScoreElement = document.getElementById('finalHighScore');
+const finalLevelElement = document.getElementById('finalLevel');
 const gameOverScreen = document.getElementById('gameOverScreen');
 const difficultySelect = document.getElementById('difficultySelect');
 
@@ -16,12 +18,14 @@ let canvasSize;
 
 let snake = [];
 let food = {};
+let specialFood = null;
 let obstacles = [];
 let powerUp = null;
 let dx = 0;
 let dy = 0;
 let score = 0;
 let highScore = 0;
+let level = 1;
 let gameLoop;
 let gameState = 'initial';
 let gameSpeeds = {
@@ -35,6 +39,11 @@ const powerUps = {
     speedBoost: { color: 'yellow', duration: 5000, effect: () => {} },
     pointMultiplier: { color: 'purple', duration: 10000, effect: () => {} },
     obstacleRemover: { color: 'orange', duration: 0, effect: () => { obstacles = []; } }
+};
+
+const specialFoods = {
+    golden: { color: 'gold', points: 5 },
+    shrink: { color: 'blue', effect: () => { snake = snake.slice(0, Math.max(3, snake.length - 2)); } }
 };
 
 function initializeCanvas() {
@@ -52,7 +61,9 @@ function startGame() {
     dx = 1;
     dy = 0;
     score = 0;
+    level = 1;
     scoreElement.textContent = score;
+    levelElement.textContent = level;
     powerUpElement.textContent = 'None';
     gameState = 'playing';
     if (gameLoop) clearInterval(gameLoop);
@@ -64,11 +75,19 @@ function startGame() {
 
 function generateFood() {
     food = getEmptyCell();
+    if (Math.random() < 0.1) { // 10% chance for special food
+        specialFood = {
+            ...getEmptyCell(),
+            type: Math.random() < 0.5 ? 'golden' : 'shrink'
+        };
+    } else {
+        specialFood = null;
+    }
 }
 
 function generateObstacles() {
     obstacles = [];
-    const obstacleCount = difficultySelect.value === 'easy' ? 3 : difficultySelect.value === 'medium' ? 5 : 7;
+    const obstacleCount = Math.min(3 + level, 10);
     for (let i = 0; i < obstacleCount; i++) {
         obstacles.push(getEmptyCell());
     }
@@ -84,7 +103,8 @@ function getEmptyCell() {
     } while (
         snake.some(segment => segment.x === cell.x && segment.y === cell.y) ||
         obstacles.some(obstacle => obstacle.x === cell.x && obstacle.y === cell.y) ||
-        (food.x === cell.x && food.y === cell.y)
+        (food.x === cell.x && food.y === cell.y) ||
+        (specialFood && specialFood.x === cell.x && specialFood.y === cell.y)
     );
     return cell;
 }
@@ -95,7 +115,9 @@ function gameStep() {
         endGame();
     } else {
         checkFoodCollision();
+        checkSpecialFoodCollision();
         checkPowerUpCollision();
+        checkLevelUp();
         drawGame();
     }
 }
@@ -131,6 +153,21 @@ function checkFoodCollision() {
     }
 }
 
+function checkSpecialFoodCollision() {
+    if (specialFood) {
+        const head = snake[0];
+        if (head.x === specialFood.x && head.y === specialFood.y) {
+            if (specialFood.type === 'golden') {
+                score += specialFoods.golden.points;
+            } else if (specialFood.type === 'shrink') {
+                specialFoods.shrink.effect();
+            }
+            scoreElement.textContent = score;
+            specialFood = null;
+        }
+    }
+}
+
 function checkPowerUpCollision() {
     if (powerUp) {
         const head = snake[0];
@@ -138,6 +175,17 @@ function checkPowerUpCollision() {
             activatePowerUp(powerUp.type);
             powerUp = null;
         }
+    }
+}
+
+function checkLevelUp() {
+    if (score >= level * 10) {
+        level++;
+        levelElement.textContent = level;
+        generateObstacles();
+        clearInterval(gameLoop);
+        const newSpeed = Math.max(50, gameSpeeds[difficultySelect.value] - level * 5);
+        gameLoop = setInterval(gameStep, newSpeed);
     }
 }
 
@@ -166,6 +214,7 @@ function endGame() {
     }
     finalScoreElement.textContent = score;
     finalHighScoreElement.textContent = highScore;
+    finalLevelElement.textContent = level;
     highScoreElement.textContent = highScore;
     gameOverScreen.style.display = 'flex';
 }
@@ -182,6 +231,12 @@ function drawGame() {
     // Draw food
     ctx.fillStyle = 'red';
     ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize - 1, gridSize - 1);
+
+    // Draw special food
+    if (specialFood) {
+        ctx.fillStyle = specialFoods[specialFood.type].color;
+        ctx.fillRect(specialFood.x * gridSize, specialFood.y * gridSize, gridSize - 1, gridSize - 1);
+    }
 
     // Draw obstacles
     ctx.fillStyle = 'gray';

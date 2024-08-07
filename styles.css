@@ -32,7 +32,7 @@ h1 {
     border-radius: 5px;
 }
 
-.score, .high-score, .power-up {
+.score, .high-score, .level, .power-up {
     font-size: 1.2em;
     font-weight: bold;
 }
@@ -111,7 +111,7 @@ button:hover {
         font-size: 2em;
     }
 
-    .score, .high-score, .power-up {
+    .score, .high-score, .level, .power-up {
         font-size: 1em;
     }
 
