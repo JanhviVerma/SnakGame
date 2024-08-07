@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Snake Game - v7</title>
+    <title>Advanced Snake Game - v8</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -24,6 +24,7 @@
             </select>
             <button id="startButton">Start Game</button>
             <button id="muteButton">Mute Sound</button>
+            <button id="pauseButton">Pause</button>
         </div>
     </div>
     <div id="gameOverScreen" class="game-over-screen">
@@ -36,6 +37,16 @@
     <div id="achievementPopup" class="achievement-popup">
         <h3>Achievement Unlocked!</h3>
         <p id="achievementText"></p>
+    </div>
+    <div id="tutorialOverlay" class="tutorial-overlay">
+        <div class="tutorial-content">
+            <h2>How to Play</h2>
+            <p>Use arrow keys to control the snake</p>
+            <p>Eat food to grow and gain points</p>
+            <p>Avoid obstacles and your own tail</p>
+            <p>Collect power-ups for special abilities</p>
+            <button id="closeTutorial">Start Playing</button>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>

@@ -3,6 +3,7 @@ const ctx = canvas.getContext('2d');
 const startButton = document.getElementById('startButton');
 const restartButton = document.getElementById('restartButton');
 const muteButton = document.getElementById('muteButton');
+const pauseButton = document.getElementById('pauseButton');
 const scoreElement = document.getElementById('scoreValue');
 const highScoreElement = document.getElementById('highScoreValue');
 const levelElement = document.getElementById('levelValue');
@@ -14,6 +15,8 @@ const gameOverScreen = document.getElementById('gameOverScreen');
 const difficultySelect = document.getElementById('difficultySelect');
 const achievementPopup = document.getElementById('achievementPopup');
 const achievementText = document.getElementById('achievementText');
+const tutorialOverlay = document.getElementById('tutorialOverlay');
+const closeTutorialButton = document.getElementById('closeTutorial');
 
 const gridSize = 20;
 let tileCount;
@@ -38,6 +41,7 @@ let gameSpeeds = {
 };
 let currentPowerUp = 'None';
 let isMuted = false;
+let isPaused = false;
 let speedBoostCount = 0;
 let obstacleRemovalCount = 0;
 let goldenAppleCount = 0;
@@ -51,7 +55,8 @@ const powerUps = {
         if (obstacleRemovalCount === 3) {
             unlockAchievement('obstaclemaster');
         }
-    }}
+    }},
+    invincibility: { color: 'gold', duration: 5000, effect: () => {} }
 };
 
 const specialFoods = {
@@ -61,20 +66,23 @@ const specialFoods = {
             unlockAchievement('goldRush');
         }
     }},
-    shrink: { color: 'blue', effect: () => { snake = snake.slice(0, Math.max(3, snake.length - 2)); } }
+    shrink: { color: 'blue', effect: () => { snake = snake.slice(0, Math.max(3, snake.length - 2)); } },
+    rainbow: { color: 'rainbow', points: 3, effect: () => { changeSnakeColor(); } }
 };
 
 const achievements = {
     levelUp: { name: "Level Up!", description: "Reach level {level}" },
     speedDemon: { name: "Speed Demon", description: "Collect 3 speed boosts in one game" },
     obstaclemaster: { name: "Obstacle Master", description: "Clear all obstacles 3 times" },
-    goldRush: { name: "Gold Rush", description: "Collect 5 golden apples in one game" }
+    goldRush: { name: "Gold Rush", description: "Collect 5 golden apples in one game" },
+    snakeCharmer: { name: "Snake Charmer", description: "Reach a length of 20" }
 };
 
 const sounds = {
     eat: new Audio('https://example.com/eat.mp3'),
     powerUp: new Audio('https://example.com/powerup.mp3'),
-    gameOver: new Audio('https://example.com/gameover.mp3')
+    gameOver: new Audio('https://example.com/gameover.mp3'),
+    achievement: new Audio('https://example.com/achievement.mp3')
 };
 
 function initializeCanvas() {
@@ -104,19 +112,25 @@ function startGame() {
     const speed = gameSpeeds[difficultySelect.value];
     gameLoop = setInterval(gameStep, speed);
     startButton.disabled = true;
+    pauseButton.disabled = false;
     gameOverScreen.style.display = 'none';
 }
 
 function generateFood() {
     food = getEmptyCell();
-    if (Math.random() < 0.1) {
+    if (Math.random() < 0.15) {
         specialFood = {
             ...getEmptyCell(),
-            type: Math.random() < 0.5 ? 'golden' : 'shrink'
+            type: getRandomSpecialFoodType()
         };
     } else {
         specialFood = null;
     }
+}
+
+function getRandomSpecialFoodType() {
+    const types = Object.keys(specialFoods);
+    return types[Math.floor(Math.random() * types.length)];
 }
 
 function generateObstacles() {
@@ -144,6 +158,8 @@ function getEmptyCell() {
 }
 
 function gameStep() {
+    if (isPaused) return;
+    
     moveSnake();
     if (checkCollision()) {
         endGame();
@@ -163,10 +179,15 @@ function moveSnake() {
     if (head.x !== food.x || head.y !== food.y) {
         snake.pop();
     }
+
+    if (snake.length >= 20) {
+        unlockAchievement('snakeCharmer');
+    }
 }
 
 function checkCollision() {
     const head = snake[0];
+    if (currentPowerUp === 'invincibility') return false;
     return (
         head.x < 0 || head.x >= tileCount ||
         head.y < 0 || head.y >= tileCount ||
@@ -197,6 +218,9 @@ function checkSpecialFoodCollision() {
                 specialFoods.golden.effect();
             } else if (specialFood.type === 'shrink') {
                 specialFoods.shrink.effect();
+            } else if (specialFood.type === 'rainbow') {
+                score += specialFoods.rainbow.points;
+                specialFoods.rainbow.effect();
             }
             scoreElement.textContent = score;
             specialFood = null;
@@ -278,8 +302,12 @@ function drawGame() {
 
     // Draw special food
     if (specialFood) {
-        ctx.fillStyle = specialFoods[specialFood.type].color;
-        ctx.fillRect(specialFood.x * gridSize, specialFood.y * gridSize, gridSize - 1, gridSize - 1);
+        if (specialFood.type === 'rainbow') {
+            drawRainbowFood(specialFood.x, specialFood.y);
+        } else {
+            ctx.fillStyle = specialFoods[specialFood.type].color;
+            ctx.fillRect(specialFood.x * gridSize, specialFood.y * gridSize, gridSize - 1, gridSize - 1);
+        }
     }
 
     // Draw obstacles
@@ -295,6 +323,28 @@ function drawGame() {
     }
 }
 
+function drawRainbowFood(x, y) {
+    const gradient = ctx.createRadialGradient(
+        (x + 0.5) * gridSize, (y + 0.5) * gridSize, 0,
+        (x + 0.5) * gridSize, (y + 0.5) * gridSize, gridSize / 2
+    );
+    gradient.addColorStop(0, "red");
+    gradient.addColorStop(0.2, "orange");
+    gradient.addColorStop(0.4, "yellow");
+    gradient.addColorStop(0.6, "green");
+    gradient.addColorStop(0.8, "blue");
+    gradient.addColorStop(1, "purple");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(x * gridSize, y * gridSize, gridSize - 1, gridSize - 1);
+}
+
+function changeSnakeColor() {
+    const colors = ['red', 'orange', 'yellow', 'green', 'blue', 'purple'];
+    snake.forEach((segment, index) => {
+        segment.color = colors[index % colors.length];
+    });
+}
+
 function unlockAchievement(achievementKey, data = {}) {
     const achievement = achievements[achievementKey];
     let description = achievement.description;
@@ -305,6 +355,7 @@ function unlockAchievement(achievementKey, data = {}) {
     
     achievementText.textContent = `${achievement.name}: ${description}`;
     achievementPopup.style.display = 'block';
+    playSound(sounds.achievement);
     setTimeout(() => {
         achievementPopup.style.display = 'none';
     }, 3000);
@@ -316,6 +367,11 @@ function playSound(sound) {
     }
 }
 
+function togglePause() {
+    isPaused = !isPaused;
+    pauseButton.textContent = isPaused ? 'Resume' : 'Pause';
+}
+
 document.addEventListener('keydown', (e) => {
     if (gameState !== 'playing') return;
     
@@ -324,15 +380,21 @@ document.addEventListener('keydown', (e) => {
         case 'ArrowDown': if (dy === 0) { dx = 0; dy = 1; } break;
         case 'ArrowLeft': if (dx === 0) { dx = -1; dy = 0; } break;
         case 'ArrowRight': if (dx === 0) { dx = 1; dy = 0; } break;
+        case ' ': togglePause(); break;
     }
 });
 
 startButton.addEventListener('click', startGame);
 restartButton.addEventListener('click', startGame);
+pauseButton.addEventListener('click', togglePause);
 
 muteButton.addEventListener('click', () => {
     isMuted = !isMuted;
     muteButton.textContent = isMuted ? 'Unmute Sound' : 'Mute Sound';
+});
+
+closeTutorialButton.addEventListener('click', () => {
+    tutorialOverlay.style.display = 'none';
 });
 
 window.addEventListener('resize', () => {
@@ -348,6 +410,12 @@ window.addEventListener('resize', () => {
 // Load high score from local storage
 highScore = localStorage.getItem('snakeHighScore') || 0;
 highScoreElement.textContent = highScore;
+
+// Show tutorial on first visit
+if (!localStorage.getItem('tutorialShown')) {
+    tutorialOverlay.style.display = 'flex';
+    localStorage.setItem('tutorialShown', 'true');
+}
 
 // Initial draw
 initializeCanvas();
