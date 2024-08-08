@@ -6,6 +6,7 @@ body {
     height: 100vh;
     margin: 0;
     background-color: #f0f0f0;
+    transition: background-color 0.3s ease;
 }
 
 .game-container {
@@ -15,6 +16,7 @@ body {
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
 }
 
 h1 {
@@ -30,6 +32,7 @@ h1 {
     background-color: #f8f8f8;
     padding: 10px;
     border-radius: 5px;
+    transition: background-color 0.3s ease;
 }
 
 .score, .high-score, .level, .power-up {
@@ -43,6 +46,7 @@ canvas {
     max-width: 100%;
     height: auto;
     border-radius: 5px;
+    transition: background-color 0.3s ease;
 }
 
 .controls {
@@ -78,7 +82,7 @@ button:hover {
     background-color: #45a049;
 }
 
-.game-over-screen, .tutorial-overlay {
+.game-over-screen, .tutorial-overlay, .modal {
     display: none;
     position: fixed;
     top: 0;
@@ -90,9 +94,10 @@ button:hover {
     justify-content: center;
     align-items: center;
     flex-direction: column;
+    z-index: 1000;
 }
 
-.game-over-screen h2, .tutorial-content h2 {
+.game-over-screen h2, .tutorial-content h2, .modal h2 {
     font-size: 2.5em;
     margin-bottom: 20px;
 }
@@ -132,6 +137,93 @@ button:hover {
     color: #333;
 }
 
+.modal {
+    display: none;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 30%;
+}
+
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.setting {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-switch label {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.toggle-switch label:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+.toggle-switch input:checked + label {
+    background-color: #4CAF50;
+}
+
+.toggle-switch input:focus + label {
+    box-shadow: 0 0 1px #4CAF50;
+}
+
+.toggle-switch input:checked + label:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+}
+
 @media (max-width: 600px) {
     .game-container {
         padding: 10px;
@@ -159,4 +251,122 @@ button:hover {
         width: 100%;
         max-width: 200px;
     }
+
+    .modal-content {
+        width: 90%;
+    }
 }
+
+.dark-mode {
+    background-color: #333;
+    color: #f0f0f0;
+}
+
+.dark-mode .game-container {
+    background-color: #444;
+}
+
+.dark-mode .game-info {
+    background-color: #555;
+}
+
+.dark-mode canvas {
+    background-color: #444;
+}
+
+/* All the previous CSS code from version 9 */
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 30%;
+}
+
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.setting {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-switch label {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.toggle-switch label:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+.toggle-switch input:checked + label {
+    background-color: #4CAF50;
+}
+
+.toggle-switch input:focus + label {
+    box-shadow: 0 0 1px #4CAF50;
+}
+
+.toggle-switch input:checked + label:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+}
+

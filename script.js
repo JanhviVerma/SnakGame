@@ -5,6 +5,7 @@ const restartButton = document.getElementById('restartButton');
 const muteButton = document.getElementById('muteButton');
 const pauseButton = document.getElementById('pauseButton');
 const soundEffectsButton = document.getElementById('soundEffectsButton');
+const fullscreenButton = document.getElementById('fullscreenButton');
 const scoreElement = document.getElementById('scoreValue');
 const highScoreElement = document.getElementById('highScoreValue');
 const levelElement = document.getElementById('levelValue');
@@ -223,8 +224,8 @@ function checkSpecialFoodCollision() {
             } else if (specialFood.type === 'shrink') {
                 specialFoods.shrink.effect();
             } else if (specialFood.type === 'rainbow') {
-                score += specialFoods.rainbow.points;
-                specialFoods.rainbow.effect();
+                score += specialFoods.rainbow.points
+              specialFoods.rainbow.effect();
             }
             scoreElement.textContent = score;
             specialFood = null;
@@ -374,7 +375,7 @@ function unlockAchievement(achievementKey, data = {}) {
 }
 
 function playSound(sound) {
-    if (!isMuted) {
+    if (!isMuted && soundEffectsEnabled) {
         sound.play();
     }
 }
@@ -389,6 +390,16 @@ function toggleSoundEffects() {
     soundEffectsButton.textContent = soundEffectsEnabled ? 'Disable Sound Effects' : 'Enable Sound Effects';
 }
 
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        canvas.requestFullscreen();
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        }
+    }
+}
+
 document.addEventListener('keydown', (e) => {
     if (gameState !== 'playing') return;
     
@@ -399,6 +410,7 @@ document.addEventListener('keydown', (e) => {
         case 'ArrowRight': if (dx === 0) { dx = 1; dy = 0; } break;
         case ' ': togglePause(); break;
         case 'm': toggleSoundEffects(); break;
+        case 'f': toggleFullscreen(); break;
     }
 });
 
@@ -412,6 +424,8 @@ muteButton.addEventListener('click', () => {
 });
 
 soundEffectsButton.addEventListener('click', toggleSoundEffects);
+
+fullscreenButton.addEventListener('click', toggleFullscreen);
 
 closeTutorialButton.addEventListener('click', () => {
     tutorialOverlay.style.display = 'none';
@@ -440,3 +454,139 @@ if (!localStorage.getItem('tutorialShown')) {
 // Initial draw
 initializeCanvas();
 drawGame();
+
+/* All the previous JavaScript code from version 9 */
+
+// Leaderboard functionality
+let leaderboard = [];
+
+function loadLeaderboard() {
+    // Load leaderboard data from local storage or an API
+    leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+    updateLeaderboardDisplay();
+}
+
+function updateLeaderboardDisplay() {
+    const leaderboardList = document.getElementById('leaderboardList');
+    leaderboardList.innerHTML = '';
+
+    leaderboard.sort((a, b) => b.score - a.score).slice(0, 10).forEach((entry, index) => {
+        const li = document.createElement('li');
+        li.textContent = `${index + 1}. ${entry.name} - ${entry.score}`;
+        leaderboardList.appendChild(li);
+    });
+}
+
+function updateLeaderboard(name, score) {
+    const existingEntry = leaderboard.find(entry => entry.name === name);
+    if (existingEntry) {
+        if (score > existingEntry.score) {
+            existingEntry.score = score;
+        }
+    } else {
+        leaderboard.push({ name, score });
+    }
+
+    leaderboard.sort((a, b) => b.score - a.score);
+    localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+    updateLeaderboardDisplay();
+}
+
+// Settings functionality
+const volumeSlider = document.getElementById('volumeSlider');
+const musicToggle = document.getElementById('music');
+const soundEffectsToggle = document.getElementById('soundEffects');
+const darkModeToggle = document.getElementById('darkMode');
+
+let volume = 1;
+let isMusicEnabled = true;
+let isSoundEffectsEnabled = true;
+let isDarkModeEnabled = false;
+
+function loadSettings() {
+    volume = parseFloat(localStorage.getItem('volume')) || 1;
+    isMusicEnabled = localStorage.getItem('isMusicEnabled') !== 'false';
+    isSoundEffectsEnabled = localStorage.getItem('isSoundEffectsEnabled') !== 'false';
+    isDarkModeEnabled = localStorage.getItem('isDarkModeEnabled') === 'true';
+
+    volumeSlider.value = volume;
+    musicToggle.checked = isMusicEnabled;
+    soundEffectsToggle.checked = isSoundEffectsEnabled;
+    darkModeToggle.checked = isDarkModeEnabled;
+    updateDarkMode();
+}
+
+function saveSettings() {
+    localStorage.setItem('volume', volume);
+    localStorage.setItem('isMusicEnabled', isMusicEnabled);
+    localStorage.setItem('isSoundEffectsEnabled', isSoundEffectsEnabled);
+    localStorage.setItem('isDarkModeEnabled', isDarkModeEnabled);
+}
+
+volumeSlider.addEventListener('input', () => {
+    volume = parseFloat(volumeSlider.value);
+    saveSettings();
+});
+
+musicToggle.addEventListener('change', () => {
+    isMusicEnabled = musicToggle.checked;
+    saveSettings();
+});
+
+soundEffectsToggle.addEventListener('change', () => {
+    isSoundEffectsEnabled = soundEffectsToggle.checked;
+    saveSettings();
+});
+
+darkModeToggle.addEventListener('change', () => {
+    isDarkModeEnabled = darkModeToggle.checked;
+    updateDarkMode();
+    saveSettings();
+});
+
+function updateDarkMode() {
+    document.body.classList.toggle('dark-mode', isDarkModeEnabled);
+}
+
+// Load settings and leaderboard on page load
+loadSettings();
+loadLeaderboard();
+
+// Show leaderboard modal
+const leaderboardButton = document.getElementById('leaderboardButton');
+const leaderboardModal = document.getElementById('leaderboardModal');
+const leaderboardCloseButton = leaderboardModal.getElementsByClassName('close-button')[0];
+
+leaderboardButton.addEventListener('click', () => {
+    leaderboardModal.style.display = 'block';
+});
+
+leaderboardCloseButton.addEventListener('click', () => {
+    leaderboardModal.style.display = 'none';
+});
+
+window.addEventListener('click', (event) => {
+    if (event.target == leaderboardModal) {
+        leaderboardModal.style.display = 'none';
+    }
+});
+
+// Show settings modal
+const settingsButton = document.getElementById('settingsButton');
+const settingsModal = document.getElementById('settingsModal');
+const settingsCloseButton = settingsModal.getElementsByClassName('close-button')[0];
+
+settingsButton.addEventListener('click', () => {
+    settingsModal.style.display = 'block';
+});
+
+settingsCloseButton.addEventListener('click', () => {
+    settingsModal.style.display = 'none';
+});
+
+window.addEventListener('click', (event) => {
+    if (event.target == settingsModal) {
+        settingsModal.style.display = 'none';
+    }
+});
+
