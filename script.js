@@ -4,6 +4,7 @@ const startButton = document.getElementById('startButton');
 const restartButton = document.getElementById('restartButton');
 const muteButton = document.getElementById('muteButton');
 const pauseButton = document.getElementById('pauseButton');
+const soundEffectsButton = document.getElementById('soundEffectsButton');
 const scoreElement = document.getElementById('scoreValue');
 const highScoreElement = document.getElementById('highScoreValue');
 const levelElement = document.getElementById('levelValue');
@@ -42,6 +43,7 @@ let gameSpeeds = {
 let currentPowerUp = 'None';
 let isMuted = false;
 let isPaused = false;
+let soundEffectsEnabled = true;
 let speedBoostCount = 0;
 let obstacleRemovalCount = 0;
 let goldenAppleCount = 0;
@@ -205,7 +207,9 @@ function checkFoodCollision() {
         if (Math.random() < 0.2) {
             spawnPowerUp();
         }
-        playSound(sounds.eat);
+        if (soundEffectsEnabled) {
+            playSound(sounds.eat);
+        }
     }
 }
 
@@ -224,7 +228,9 @@ function checkSpecialFoodCollision() {
             }
             scoreElement.textContent = score;
             specialFood = null;
-            playSound(sounds.powerUp);
+            if (soundEffectsEnabled) {
+                playSound(sounds.powerUp);
+            }
         }
     }
 }
@@ -235,7 +241,9 @@ function checkPowerUpCollision() {
         if (head.x === powerUp.x && head.y === powerUp.y) {
             activatePowerUp(powerUp.type);
             powerUp = null;
-            playSound(sounds.powerUp);
+            if (soundEffectsEnabled) {
+                playSound(sounds.powerUp);
+            }
         }
     }
 }
@@ -284,7 +292,9 @@ function endGame() {
     finalLevelElement.textContent = level;
     highScoreElement.textContent = highScore;
     gameOverScreen.style.display = 'flex';
-    playSound(sounds.gameOver);
+    if (soundEffectsEnabled) {
+        playSound(sounds.gameOver);
+    }
 }
 
 function drawGame() {
@@ -355,7 +365,9 @@ function unlockAchievement(achievementKey, data = {}) {
     
     achievementText.textContent = `${achievement.name}: ${description}`;
     achievementPopup.style.display = 'block';
-    playSound(sounds.achievement);
+    if (soundEffectsEnabled) {
+        playSound(sounds.achievement);
+    }
     setTimeout(() => {
         achievementPopup.style.display = 'none';
     }, 3000);
@@ -372,6 +384,11 @@ function togglePause() {
     pauseButton.textContent = isPaused ? 'Resume' : 'Pause';
 }
 
+function toggleSoundEffects() {
+    soundEffectsEnabled = !soundEffectsEnabled;
+    soundEffectsButton.textContent = soundEffectsEnabled ? 'Disable Sound Effects' : 'Enable Sound Effects';
+}
+
 document.addEventListener('keydown', (e) => {
     if (gameState !== 'playing') return;
     
@@ -381,6 +398,7 @@ document.addEventListener('keydown', (e) => {
         case 'ArrowLeft': if (dx === 0) { dx = -1; dy = 0; } break;
         case 'ArrowRight': if (dx === 0) { dx = 1; dy = 0; } break;
         case ' ': togglePause(); break;
+        case 'm': toggleSoundEffects(); break;
     }
 });
 
@@ -392,6 +410,8 @@ muteButton.addEventListener('click', () => {
     isMuted = !isMuted;
     muteButton.textContent = isMuted ? 'Unmute Sound' : 'Mute Sound';
 });
+
+soundEffectsButton.addEventListener('click', toggleSoundEffects);
 
 closeTutorialButton.addEventListener('click', () => {
     tutorialOverlay.style.display = 'none';
