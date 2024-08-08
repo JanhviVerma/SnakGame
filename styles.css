@@ -370,3 +370,62 @@ button:hover {
     transform: translateX(26px);
 }
 
+/* All the previous CSS code from version 11 */
+
+/* Additional CSS for v12 */
+.share-container {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 1000;
+}
+
+.share-container h2 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+}
+
+.share-container p {
+    font-size: 1.5em;
+    margin-bottom: 15px;
+}
+
+.share-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.share-buttons button {
+    font-size: 1em;
+    padding: 10px 20px;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    border-radius: 5px;
+}
+
+.share-buttons .twitter {
+    background-color: #1DA1F2;
+}
+
+.share-buttons .facebook {
+    background-color: #4267B2;
+}
+
+.share-buttons .copy-link {
+    background-color: #4CAF50;
+}
+
+.share-buttons button:hover {
+    opacity: 0.8;
+}
