@@ -429,3 +429,40 @@ button:hover {
 .share-buttons button:hover {
     opacity: 0.8;
 }
+
+/* All the previous CSS code from version 12 */
+
+/* Additional CSS for v13 */
+#achievementsModal {
+    display: none;
+}
+
+.achievement-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-gap: 20px;
+}
+
+.achievement-card {
+    background-color: #f8f8f8;
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+.achievement-card.unlocked {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.achievement-card h3 {
+    margin-top: 0;
+}
+
+.achievement-card p {
+    margin-bottom: 0;
+}
+
+
