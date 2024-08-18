@@ -2,6 +2,8 @@
 
 Welcome to the Snake Game repository! This project is a classic implementation of the popular Snake game, showcasing fundamental game mechanics, user interface design, and some advanced features for an enhanced gaming experience.
 
+**[Try the Game!](https://janhviverma.github.io/SnakGame/)**
+
 ## Features
 
 - **Classic Snake Gameplay**: Navigate the snake to eat food and grow longer.
